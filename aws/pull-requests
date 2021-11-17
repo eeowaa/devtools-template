@@ -1,5 +1,5 @@
 #!/bin/sh
-# List open pull request URLs in CodeCommit
+# Describe pull requests in CodeCommit
 
 # Check for required variable
 [ "X$AWS_DEFAULT_REGION" = X ] && {

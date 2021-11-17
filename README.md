@@ -31,11 +31,11 @@ giving you unambiguous legal permission to use the project as intended, i.e.,
 to create a new repository based upon the provided template.
 
 Among other things, the [./configure](configure) script provided with this
-repository moves the [LICENSE](LICENSE) file into a separate [NOTICE](NOTICE)
-file containing a short preamble. This achieves two legal goals which help
-to protect your team should you ever distribute your work more broadly:
+repository moves the [LICENSE](LICENSE) file into a separate `NOTICE` file
+containing a short preamble. This achieves two legal goals which help to
+protect your team should you ever distribute your work more broadly:
 
-1. Your team's original work will have no license attached; i.e. you reserve
+1. Your team's original work will have no license attached, i.e., you reserve
    all rights to your intellectual property.[^1]
 
 2. Your team fulfills its legal obligation to disseminate the license and
