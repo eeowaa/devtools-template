@@ -7,7 +7,7 @@ cd devtools
 # Keep a reference to the template repo (you should change the origin later)
 git remote add template https://github.com/eeowaa/devtools-template.git
 
-# Move the license for devtools-templates into a NOTICE file
+# Move the license for devtools-template into a NOTICE file
 cat - LICENSE >NOTICE <<EOF
 This project is based on devtools-template, which can be found at
 <https://github.com/eeowaa/devtools-template.git> and is distributed with
@@ -17,6 +17,6 @@ EOF
 git rm LICENSE
 git add NOTICE
 
-# Replace the devtools-templates README with one for devtools
+# Replace the devtools-template README with one for devtools
 git rm README.md
 git mv TEMPLATE_README.md README.md
