@@ -28,7 +28,7 @@ git push -u origin main
 The `devtools-template` project is licensed under the
 [BSD-2-Clause Plus Patent License](https://spdx.org/licenses/BSD-2-Clause-Patent.html),
 giving you unambiguous legal permission to use the project as intended, i.e.,
-creating a new repository building upon the provided template.
+to create a new repository based upon the provided template.
 
 Among other things, the [./configure](configure) script provided with this
 repository moves the [LICENSE](LICENSE) file into a separate [NOTICE](NOTICE)
