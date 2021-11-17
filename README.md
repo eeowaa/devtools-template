@@ -2,7 +2,7 @@
 SPDX-FileCopyrightText: © 2021 eeowaa <https://github.com/eeowaa>
 SPDX-License-Identifier: BSD-2-Clause-Patent
 -->
-# devtools-templates
+# devtools-template
 
 Scaffolding that development teams can use for shared tools repos.
 
