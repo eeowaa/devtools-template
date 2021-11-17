@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# Clone devtools-templates into devtools
+git clone https://github.com/eeowaa/devtools-template.git devtools
+cd devtools
+
+# Keep a reference to the template repo (you should change the origin later)
+git remote add template https://github.com/eeowaa/devtools-template.git
+
+# Move the license for devtools-templates into a NOTICE file
+cat - LICENSE >NOTICE <<EOF
+This project is based on devtools-template, which can be found at
+<https://github.com/eeowaa/devtools-template.git> and is distributed with
+the following BSD-2-Clause Plus Patent License:
+
+EOF
+git rm LICENSE
+git add NOTICE
+
+# Replace the devtools-templates README with one for devtools
+git rm README.md
+git mv TEMPLATE_README.md README.md

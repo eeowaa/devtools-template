@@ -1,0 +1,106 @@
+#!/bin/sh
+# List open pull request URLs in CodeCommit
+
+# Check for required variable
+[ "X$AWS_DEFAULT_REGION" = X ] && {
+    echo >&2 'Missing required variable: AWS_DEFAULT_REGION'
+    exit 1
+}
+
+# Output YAML list label
+cat <<EOF
+Repositories:
+EOF
+
+# List all repositories
+aws codecommit list-repositories \
+    --query 'repositories[].[repositoryName]' --output text |
+
+# For each repo...
+while read repo
+do
+    # List all open PRs
+    export repo
+    pr_list=`
+        aws codecommit list-pull-requests \
+            --pull-request-status OPEN --repository-name "$repo" \
+            --query '[pullRequestIds]' --output text
+    `
+
+    # Skip to the next repo if there are no open PRs for this one
+    [ "$pr_list" ] || continue
+
+    # Get the repository description
+    description=`
+        aws codecommit get-repository \
+            --repository-name "$repo" \
+            --query 'repositoryMetadata.repositoryDescription' --output text
+    `
+
+    # Output YAML dictionary data for the repository
+    cat <<EOF
+  - RemoteURL:   codecommit::$AWS_DEFAULT_REGION://$repo
+    Description: '`echo "$description" | sed "s/'/''/g"`'
+    PullRequests:
+EOF
+
+    # For each open PR...
+    for pr in $pr_list
+    do
+        # Get PR metadata
+        export pr
+        aws codecommit get-pull-request \
+            --pull-request-id $pr \
+            --query 'pullRequest.[
+                title,
+                description,
+                creationDate,
+                lastActivityDate,
+                authorArn,
+                revisionId,
+                pullRequestTargets[0].[
+                    sourceCommit,
+                    sourceReference,
+                    destinationCommit,
+                    destinationReference
+                ]
+            ]' --output text | tr '\t' '\n' | {
+        read title; read description; read create_time;
+        read update_time; read requester; read pr_revision;
+        read src_commit; read src_branch; read dest_commit;
+        read dest_branch
+        approvers=`
+            aws codecommit get-pull-request-approval-states \
+                --pull-request-id $pr --revision-id $pr_revision \
+                --query 'approvals[].userArn' --output text
+        `
+
+        # Format PR metadata
+        [ "$description" = None ] && description=
+        title=`echo "$title" | sed "s/'/''/g"`
+        description=`echo "$description" | sed "s/'/''/g"`
+        create_time=`echo $create_time | sed 's#\(....\)-\(..\)-\(..\)T\(..\):\(..\).*\(...:..\)$#\2/\3/\1 \4:\5 UTC\6#'`
+        update_time=`echo $update_time | sed 's#\(....\)-\(..\)-\(..\)T\(..\):\(..\).*\(...:..\)$#\2/\3/\1 \4:\5 UTC\6#'`
+        requester=${requester##*:assumed-role/}
+        approvers=`echo "$approvers" | tr '\t' '\n' | sed 's#.*:assumed-role/##' | tr '\n' , | sed -e 's#,$##' -e 's#,#, #'`
+        src_commit=`echo $src_commit | cut -c1-10`
+        dest_commit=`echo $dest_commit | cut -c1-10`
+        src_branch=${src_branch#refs/heads/}
+        dest_branch=${dest_branch#refs/heads/}
+
+        # Output YAML dictionary for the PR
+        cat <<EOF
+      - URL: https://console.aws.amazon.com/codesuite/codecommit/repositories/$repo/pull-requests/$pr/details?region=$AWS_DEFAULT_REGION
+        Title:       '$title'
+        Description: '$description'
+        CreateTime:  $create_time
+        UpdateTime:  $update_time
+        Requester:   $requester
+        Approvers:   [ $approvers ]
+        Source:      { Commit: $src_commit, Branch: $src_branch }
+        Destination: { Commit: $dest_commit, Branch: $dest_branch }
+
+EOF
+        }
+    done
+done
